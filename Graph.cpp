@@ -297,8 +297,10 @@ double Graph::smallest_connecting_threshold(string const & start_label, string c
         }
     }
 
-    //now sort the edges by weight
+    //sort the edges by weight
     sort(edgeTuple.begin(), edgeTuple.end(), tupleWeightComparator);
+
+    //add the nodes into a larger set to get the min edge weight
     for(tuple<string,string,double> minEdge : edgeTuple){
         string one = get<0>(minEdge);
         string two = get<1>(minEdge);
