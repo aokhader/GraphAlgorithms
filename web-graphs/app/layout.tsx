@@ -25,6 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <title>Visual Graph Algorithms</title>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
