@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
 
     // check basic properties of the graph
     if(strcmp(argv[2], PROPERTIES) == 0) {
-        cout << "Number of Nodes\t" << g.num_nodes() << endl;
-        cout << "Nodes\t"; bool first = true;
+        cout << "Number of Nodes: " << g.num_nodes() << endl;
+        cout << "Nodes: "; bool first = true;
         for(string const & u : nodes) {
             if(first) { cout << '{'; first = false; } else { cout << ','; }
             cout << '"' << u << '"';
@@ -57,8 +57,9 @@ int main(int argc, char** argv) {
 
         if(first) { cout << '{'; }
         cout << '}' << endl;
-        cout << "Number of Edges\t" << g.num_edges() << endl;
-        cout << "Edge Weights\t"; first = true;
+        cout << "Number of Edges: " << g.num_edges() << endl;
+        cout << "--------------------------------------------" << endl;
+        cout << "Edge Weights: "; first = true;
 
         for(string const & u : nodes) {
             bool first_in = true;
@@ -76,7 +77,8 @@ int main(int argc, char** argv) {
 
         if(first) { cout << '{'; }
         cout << '}' << endl;
-        cout << "Number of Neighbors\t"; first = true;
+        cout << "--------------------------------------------" << endl;
+        cout << "Number of Neighbors: "; first = true;
 
         for(string const & u : nodes) {
             if(first) { cout << '{'; first = false; } else { cout << ','; }
@@ -85,7 +87,7 @@ int main(int argc, char** argv) {
 
         if(first) { cout << '{'; }
         cout << '}' << endl;
-        cout << "Neighbors\t"; first = true;
+        cout << "Neighbors: "; first = true;
 
         for(string const & u : nodes) {
             bool first_in = true;
