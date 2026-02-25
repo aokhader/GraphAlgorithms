@@ -8,7 +8,15 @@ This program will take in a graph as a CSV file and allows you to run different 
 - Smallest connecting threshold needed to have a path from a given starting node to a given ending node:
   - This is done efficiently by using the Disjoint Set ADT, which makes all the nodes into its own DS and uses Union-By-Size to combine them.
 
-## Assumptions
+Additionally, a web application that demonstrates how the graph algorithms work is available by running the following commands:
+```
+cd web-graph
+npm install
+npm run dev
+```
+
+
+## Assumptions for C++ Use
 System Assumptions: 
 - This program assumes you are running on a Linux machine or a virtual Linux machine such as Ubuntu's WSL. If you are running on a Windows then use a virtual Linux machine to run the program, or install a package that allows you to run a makefile if you want to use the ease of running it. To get Ubuntu, you follow the instructions in this [link](https://ubuntu.com/desktop/wsl).
 - To run the makefile without installing Ubuntu's WSL, install [GNU make](https://www.gnu.org/software/make/) with [chocolatey](https://chocolatey.org/install) to add ``make`` to the global path and runs on all Command Line Interfaces (powershell, git bash, cmd, etc…), then run the command ``choco install make``.
