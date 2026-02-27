@@ -1,5 +1,5 @@
 export interface GraphEdge {
-  id: string;  // Already hashed by map and cytoscape needs proper string
+  id: string;  // Already hashed by map and cytoscape needs proper stringw
   source: string;
   target: string;
   weight: number;
@@ -20,7 +20,7 @@ export type StepCategory =
   | 'init'
   | 'visit'
   | 'explore'
-  | 'relax'
+  | 'relax'  // Update with shorter path
   | 'found'
   | 'done'
   | 'union';
