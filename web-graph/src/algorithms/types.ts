@@ -1,5 +1,5 @@
 export interface GraphEdge {
-  id: string;
+  id: string;  // Already hashed by map and cytoscape needs proper string
   source: string;
   target: string;
   weight: number;
@@ -33,7 +33,7 @@ export interface StepFrame {
   activeEdges: string[];
   /** Edges on the final answer path */
   pathEdges: string[];
-  message: string;
+  log?: string;
   category: StepCategory;
   /** Optional key-value data (e.g. distance table) */
   metadata?: Record<string, string | number>;
