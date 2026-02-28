@@ -8,18 +8,12 @@ This program will take in a graph as a CSV file and allows you to run different 
 - Smallest connecting threshold needed to have a path from a given starting node to a given ending node:
   - This is done efficiently by using the Disjoint Set ADT, which makes all the nodes into its own DS and uses Union-By-Size to combine them.
 
-Additionally, a web application that demonstrates how the graph algorithms work is available by running the following commands:
+This application can run both locally using the C++ implementation in ``/graph-algoritms`` and on the web via the web application in ``/web-graph``. To start the web app, run the following commands:
 ```
 cd web-graph
 npm install
 npm run dev
 ```
-
-
-## Assumptions for C++ Use
-System Assumptions: 
-- This program assumes you are running on a Linux machine or a virtual Linux machine such as Ubuntu's WSL. If you are running on a Windows then use a virtual Linux machine to run the program, or install a package that allows you to run a makefile if you want to use the ease of running it. To get Ubuntu, you follow the instructions in this [link](https://ubuntu.com/desktop/wsl).
-- To run the makefile without installing Ubuntu's WSL, install [GNU make](https://www.gnu.org/software/make/) with [chocolatey](https://chocolatey.org/install) to add ``make`` to the global path and runs on all Command Line Interfaces (powershell, git bash, cmd, etc…), then run the command ``choco install make``.
 
 Input File Assumptions:
 - The file is a CSV file formatted in the following manner: ``<node_A>,<node_B>,<edge_weight>``.
@@ -29,7 +23,14 @@ Input File Assumptions:
 - The edges are undirected, and there is at least one edge in the graph.
 
 
-## Usage
+## Assumptions for C++ Use
+System Assumptions: 
+- This program assumes you are running on a Linux machine or a virtual Linux machine such as Ubuntu's WSL. If you are running on a Windows then use a virtual Linux machine to run the program, or install a package that allows you to run a makefile if you want to use the ease of running it. To get Ubuntu, you follow the instructions in this [link](https://ubuntu.com/desktop/wsl).
+- To run the makefile without installing Ubuntu's WSL, install [GNU make](https://www.gnu.org/software/make/) with [chocolatey](https://chocolatey.org/install) to add ``make`` to the global path and runs on all Command Line Interfaces (powershell, git bash, cmd, etc…), then run the command ``choco install make``.
+
+
+
+## Usage for C++ Use
 After running the makefile using the command ``make``, the executable name is ``./GraphTest``. The usage is shown below: 
 ```
 ./GraphTest <edgelist_csv> <test>

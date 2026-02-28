@@ -29,6 +29,7 @@ export default function Home() {
   const [result, setResult]         = useState<Result | null>(null);
   const [hasGraph, setHasGraph]     = useState(false);
   const [currentAlgoId, setCurrentAlgoId] = useState<AlgorithmId>('bfs');
+  const [lastQueue, setLastQueue]         = useState<string[]>([]);
 
   // ── Cytoscape ──────────────────────────────────────────────────────────────
   const { containerRef, applyFrame, resetStyles, loadGraph, getCy } = useCytoscape();
@@ -40,6 +41,7 @@ export default function Home() {
       setLogEntries([]);
       return;
     }
+    if (frame.queue !== undefined) setLastQueue(frame.queue);
     setLogEntries((prev) => {
       if (index < prev.length - 1) {
         return prev.slice(0, index + 1);
@@ -50,6 +52,7 @@ export default function Home() {
 
   const animator = useAnimator(handleFrame);
 
+  // ── Load graph from CSV ────────────────────────────────────────────────────
   function handleLoadCSV(csv: string, layout: string) {
     try {
       const graph    = parseCSV(csv);
@@ -65,17 +68,18 @@ export default function Home() {
     }
   }
 
+  // ── Clear ──────────────────────────────────────────────────────────────────
   function handleClear() {
     loadGraph([]);
     animator.stop();
     setLogEntries([]);
     setResult(null);
     setHasGraph(false);
+    setLastQueue([]);
   }
 
   // ── Run algorithm ──────────────────────────────────────────────────────────
   function handleRun(algoId: AlgorithmId, startId: string, endId: string) {
-    console.log('handleRun called:', algoId, JSON.stringify(startId), JSON.stringify(endId));
     setCurrentAlgoId(algoId);
     const cy = getCy();
     if (!cy) { console.warn('[page] Cytoscape not yet ready'); return; }
@@ -117,16 +121,14 @@ export default function Home() {
 
       <header className="flex items-center gap-4 px-5 py-3 border-b border-[#181b28] bg-[#080a10] shrink-0">
         <div className="flex items-baseline gap-1.5">
-          <span className="font-mono text-[13px] font-bold tracking-[0.1em] text-[#4a7cf5]">GRAPH</span>
-          <span className="font-mono text-[13px] text-[#1e2130]">/</span>
-          <span className="font-mono text-[13px] font-bold tracking-[0.1em] text-[#2e3347]">VIZ</span>
+          <span className="font-mono text-[13px] font-bold tracking-[0.1em] text-[#4a7cf5]">GraphViz</span>
         </div>
-        <span className="font-mono text-[10px] text-[#2e3347] tracking-widest">
-          algorithm visualizer
+        <span className="font-mono text-[10px] text-[#7e86a7] tracking-widest">
+          Algorithm Visualizer
         </span>
         <div className="ml-auto">
-          <span className="font-mono text-[9px] text-[#2e3347] tracking-widest uppercase">
-            drag nodes to reposition · scroll to zoom
+          <span className="font-mono text-[9px] text-[#7e86a7] tracking-widest uppercase">
+            Drag nodes to reposition · scroll to zoom
           </span>
         </div>
       </header>
@@ -163,6 +165,7 @@ export default function Home() {
           frameCount={animator.frameCount}
           result={result}
           algoId={currentAlgoId}
+          lastQueue={lastQueue}
         />
       </div>
 

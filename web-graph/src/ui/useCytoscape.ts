@@ -121,6 +121,7 @@ export function useCytoscape(): CytoscapeControls {
       layout: { name: 'preset' },
       userZoomingEnabled: true,
       userPanningEnabled: true,
+      wheelSensitivity: 2,
       boxSelectionEnabled: false,
       autounselectify: true,
     });

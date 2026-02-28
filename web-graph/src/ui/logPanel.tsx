@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import type { StepFrame, StepCategory } from '../algorithms/types';
 
 const CATEGORY_COLOUR: Record<StepCategory, string> = {
-  init:    'border-[#2e3347]',
+  init:    'border-[#7e86a7]',
   visit:   'border-[#4a7cf5]',
   explore: 'border-[#2a3a6e]',
   relax:   'border-[#7a5010]',
@@ -39,14 +39,19 @@ interface LogPanelProps {
   currentIndex: number;
   frameCount:   number;
   result:       Result | null;
-  algoId:       string;   // so we can label the queue correctly
+  algoId:       string;
+  lastQueue:    string[];  // persists after stop so panel stays visible
 }
 
-export function LogPanel({ entries, currentIndex, frameCount, result, algoId }: LogPanelProps) {
+export function LogPanel({ entries, currentIndex, frameCount, result, algoId, lastQueue }: LogPanelProps) {
   const bottomRef  = useRef<HTMLDivElement>(null);
   const currentFrame = entries.find((e) => e.index === currentIndex)?.frame ?? null;
-  const queue = currentFrame?.queue ?? [];
-  const queueLabel = ALGO_QUEUE_LABEL[algoId] ?? 'Queue';
+  const queue = currentFrame?.queue ?? lastQueue;
+  const queueLabel  = ALGO_QUEUE_LABEL[algoId] ?? 'Queue';
+  const isStack     = algoId === 'dfs';
+  // For stacks: reverse so top is on the right, highlight the last item
+  const displayQueue = isStack ? [...queue].reverse() : queue;
+  const topIndex     = isStack ? displayQueue.length - 1 : 0;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -57,7 +62,7 @@ export function LogPanel({ entries, currentIndex, frameCount, result, algoId }: 
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#181b28] shrink-0">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#2e3347]">Log</span>
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#7e86a7]">Log</span>
         <span className="font-mono text-[10px] text-[#4a7cf5]">
           {frameCount > 0 ? `${currentIndex + 1} / ${frameCount}` : '—'}
         </span>
@@ -69,20 +74,20 @@ export function LogPanel({ entries, currentIndex, frameCount, result, algoId }: 
           'shrink-0 px-4 py-2.5 border-b border-[#181b28] font-mono text-[11px] flex items-center gap-2',
           result.success ? 'text-[#2ea86a]' : 'text-[#e05c7a]',
         ].join(' ')}>
-          <span className="text-[#2e3347]">answer</span>
-          <span className="text-[#2e3347]">=</span>
+          <span className="text-[#7e86a7]">Answer</span>
+          <span className="text-[#7e86a7]">=</span>
           <span className="font-semibold">{result.value}</span>
         </div>
       )}
 
       {/* ── Queue / Stack panel ── */}
-      {frameCount > 0 && (
+      {(frameCount > 0 || lastQueue.length > 0) && (
         <div className="shrink-0 border-b border-[#181b28]">
           <div className="flex items-center justify-between px-4 py-2">
-            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#2e3347]">
+            <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#7e86a7]">
               {queueLabel}
             </span>
-            <span className="font-mono text-[10px] text-[#2e3347]">
+            <span className="font-mono text-[10px] text-[#7e86a7]">
               {queue.length > 0 ? `${queue.length} item${queue.length !== 1 ? 's' : ''}` : 'empty'}
             </span>
           </div>
@@ -119,7 +124,7 @@ export function LogPanel({ entries, currentIndex, frameCount, result, algoId }: 
       {/* Step log */}
       <div className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-[2px]">
         {entries.length === 0 && (
-          <div className="font-mono text-[10px] text-[#2e3347] px-2 py-4 text-center">
+          <div className="font-mono text-[12px] text-[#7e86a7] px-2 py-4 text-center">
             Run an algorithm to see the step log.
           </div>
         )}
@@ -136,7 +141,7 @@ export function LogPanel({ entries, currentIndex, frameCount, result, algoId }: 
               ].join(' ')}
             >
               <div className="flex items-baseline gap-2">
-                <span className="font-mono text-[9px] text-[#2e3347] shrink-0 tabular-nums">
+                <span className="font-mono text-[9px] text-[#7e86a7] shrink-0 tabular-nums">
                   {String(index + 1).padStart(3, '0')}
                 </span>
                 <span className={['font-mono text-[10px] leading-relaxed', CATEGORY_TEXT[frame.category]].join(' ')}>
@@ -147,7 +152,7 @@ export function LogPanel({ entries, currentIndex, frameCount, result, algoId }: 
               {isCurrent && frame.metadata && Object.keys(frame.metadata).length > 0 && (
                 <div className="ml-7 flex flex-wrap gap-x-3 gap-y-0.5">
                   {Object.entries(frame.metadata).map(([k, v]) => (
-                    <span key={k} className="font-mono text-[9px] text-[#2e3347]">
+                    <span key={k} className="font-mono text-[9px] text-[#7e86a7]">
                       <span className="text-[#2a3a5e]">{k}</span>
                       <span className="text-[#1e2130]">=</span>
                       <span className="text-[#3a5a3e]">{String(v)}</span>

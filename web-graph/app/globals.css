@@ -30,3 +30,15 @@ body {
   height: 100%;
   overflow: hidden;
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.textarea::-webkit-scrollbar {
+  display: none;
+}

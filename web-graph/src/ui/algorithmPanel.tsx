@@ -68,11 +68,11 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
   }
 
   return (
-    <aside className="flex flex-col w-[240px] shrink-0 border-r border-[#181b28] bg-[#080a10] overflow-y-auto">
+    <aside className="flex flex-col w-[240px] shrink-0 border-r border-[#181b28] bg-[#080a10] overflow-y-auto hide-scrollbar">
 
       {/* Header */}
       <div className="px-4 py-3 border-b border-[#181b28]">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#2e3347]">Algorithm</span>
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#7e86a7]">Algorithm</span>
       </div>
 
       {/* Algorithm picker */}
@@ -88,10 +88,10 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
                 : 'bg-transparent border-transparent text-[#3a3f55] hover:text-[#8890aa] hover:bg-[#0e0f18]',
             ].join(' ')}
           >
-            <span className="font-mono text-[11px] font-semibold min-w-[80px] mt-px leading-tight">
+            <span className="font-mono text-[12px] text-[#c8cde0] font-semibold min-w-[80px] mt-px leading-tight">
               {algo.label}
             </span>
-            <span className="font-mono text-[9px] text-[#2e3347] leading-tight mt-[2px]">
+            <span className="font-mono text-[10px] text-[#7e86a7] leading-tight mt-[2px]">
               {algo.description}
             </span>
           </button>
@@ -101,13 +101,13 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
       {/* Start / end inputs */}
       {currentAlgo.needsPath && (
         <div className="px-3 py-3 border-b border-[#181b28] flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#2e3347]">
+          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#7e86a7]">
             Source / Target
           </span>
           <div className="flex gap-2">
             {/* Start */}
             <div className="flex flex-col gap-1 flex-1">
-              <label className="font-mono text-[9px] text-[#2e3347] uppercase tracking-widest">From</label>
+              <label className="font-mono text-[9px] text-[#7e86a7] uppercase tracking-widest">From</label>
               <input
                 ref={startRef}
                 value={startNode}
@@ -125,7 +125,7 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
             </div>
             {/* End */}
             <div className="flex flex-col gap-1 flex-1">
-              <label className="font-mono text-[9px] text-[#2e3347] uppercase tracking-widest">To</label>
+              <label className="font-mono text-[9px] text-[#7e86a7] uppercase tracking-widest">To</label>
               <input
                 ref={endRef}
                 value={endNode}
@@ -157,23 +157,23 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
       </div>
 
       {/* CSV import */}
-      <div className="px-3 py-3 border-b border-[#181b28] flex flex-col gap-2">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#2e3347]">Load CSV</span>
-        <span className="font-mono text-[9px] text-[#2e3347]">format: nodeA,nodeB,weight</span>
+      <div className="px-3 py-3 border-b border-[#181b28] flex flex-col gap-2 hide-scrollbar">
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#7e86a7]">Load CSV (undirected)</span>
+        <span className="font-mono text-[10px] text-[#7e86a7]">Format: nodeA,nodeB,weight</span>
         <textarea
           value={csvText}
           onChange={(e) => { setCsvText(e.target.value); setCsvError(''); }}
           rows={6}
           spellCheck={false}
-          className="bg-[#0c0e18] border border-[#1e2130] text-[#6a7090] font-mono text-[10px] px-2 py-2 w-full outline-none focus:border-[#4a7cf5] resize-y transition-colors leading-relaxed"
+          className="bg-[#0c0e18] border border-[#1e2130] text-[#6a7090] font-mono text-[10px] px-2 py-2 w-full outline-none focus:border-[#4a7cf5] resize-y transition-colors leading-relaxed hide-scrollbar"
         />
         {csvError && <span className="font-mono text-[9px] text-[#e05c7a]">{csvError}</span>}
         <div className="flex gap-2 items-center">
-          <span className="font-mono text-[9px] text-[#2e3347] shrink-0">Layout</span>
+          <span className="font-mono text-[11px] text-[#7e86a7] shrink-0">Layout:</span>
           <select
             value={layout}
             onChange={(e) => setLayout(e.target.value)}
-            className="flex-1 bg-[#0c0e18] border border-[#1e2130] text-[#6a7090] font-mono text-[10px] px-2 py-1 outline-none focus:border-[#4a7cf5] transition-colors"
+            className="flex-1 bg-[#0c0e18] border border-[#1e2130] text-[#6a7090] font-mono text-[11px] px-2 py-1 outline-none focus:border-[#4a7cf5] transition-colors"
           >
             <option value="cose">Force</option>
             <option value="circle">Circle</option>
@@ -193,7 +193,7 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
       <div className="px-3 py-3 mt-auto">
         <button
           onClick={onClear}
-          className="w-full font-mono text-[10px] tracking-widest uppercase px-3 py-2 bg-transparent border border-[#181b28] text-[#2e3347] hover:border-[#e05c7a] hover:text-[#e05c7a] transition-colors duration-100"
+          className="w-full font-mono text-[10px] tracking-widest uppercase px-3 py-2 bg-transparent border border-[#181b28] text-[#7e86a7] hover:border-[#e05c7a] hover:text-[#e05c7a] transition-colors duration-100"
         >
           Clear Graph
         </button>
