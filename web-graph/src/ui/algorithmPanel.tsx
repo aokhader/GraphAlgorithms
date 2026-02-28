@@ -157,7 +157,7 @@ export function AlgorithmPanel({ onRun, onLoadCSV, onClear, disabled }: Algorith
       </div>
 
       {/* CSV import */}
-      <div className="px-3 py-3 border-b border-[#181b28] flex flex-col gap-2 hide-scrollbar">
+      <div className="px-3 py-3 border-b border-[#181b28] flex flex-col gap-2 ">
         <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#7e86a7]">Load CSV (undirected)</span>
         <span className="font-mono text-[10px] text-[#7e86a7]">Format: nodeA,nodeB,weight</span>
         <textarea

@@ -122,7 +122,7 @@ export function LogPanel({ entries, currentIndex, frameCount, result, algoId, la
       )}
 
       {/* Step log */}
-      <div className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-[2px]">
+      <div className="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-[2px] hide-scrollbar">
         {entries.length === 0 && (
           <div className="font-mono text-[12px] text-[#7e86a7] px-2 py-4 text-center">
             Run an algorithm to see the step log.

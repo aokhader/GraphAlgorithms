@@ -23,7 +23,7 @@ This project ports a C++ graph algorithms implementation into an animated web ap
 Finds the shortest unweighted path between two nodes using a FIFO queue. The queue panel shows the current queue contents, with the front highlighted.
 
 ### DFS — Depth-First Search
-Traverses the graph depth-first using a LIFO stack. The stack panel shows items with the top of stack on the right, highlighted in blue, with `← top` markers.
+Traverses the graph depth-first using a LIFO stack. The stack panel shows items with the top of stack on the right, highlighted in blue.
 
 ### Dijkstra's Algorithm
 Finds the shortest weighted path using a binary min-heap priority queue. Each entry in the priority queue panel is shown as `node(cost)`, sorted by cost. The metadata panel shows the live distance table updating as nodes are relaxed.
@@ -33,6 +33,13 @@ Finds all connected subgraphs using iterative DFS. Reports the number of compone
 
 ### Smallest Threshold (Union-Find)
 Finds the smallest edge weight `T` such that all edges with weight ≤ `T` connect a start node to an end node. Uses a Union-Find (Disjoint Set) data structure with union-by-size and path compression.
+
+## Project Preview
+When an algorithm is running, the graph visualization looks like:
+![running-algo](./images/running-algo.png)
+
+After completing an algorithm, the graph visualization looks like:
+![running-algo](./images/completed-algo.png)
 
 ## Project Structure
 
