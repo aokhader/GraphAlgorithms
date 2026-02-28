@@ -9,6 +9,7 @@ export function parseCSV(csvText: string): Graph {
   const lines = csvText.trim().split('\n');
 
   lines.forEach((line, i) => {
+    console.log(`[graphParser] Parsing line ${i + 1}: "${line}"`);
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) return; // skip blanks and comments
 
@@ -30,6 +31,9 @@ export function parseCSV(csvText: string): Graph {
   });
 
   const nodes: GraphNode[] = [...nodeSet].map((id) => ({ id }));
+  console.log(`Nodes: ${nodes.map((n) => n.id).join(', ')}`);
+  console.log(`Edges: ${edges.map((e) => `${e.source}->${e.target}(${e.weight})`).join(', ')}`);
+  console.log("Parsed CSV.")
   return buildGraph(nodes, edges);
 }
 
@@ -64,6 +68,7 @@ export function graphToCytoscapeElements(
     data: { id: n.id },
   }));
 
+  console.log(`ToCytoScapeElements: ${graph.edges.map((e) => `${e.source}->${e.target}(${e.weight}) with ID ${e.id}`).join(', ')}`);
   const edgeEls: cytoscape.ElementDefinition[] = graph.edges.map((e) => ({
     group: 'edges' as const,
     data: {

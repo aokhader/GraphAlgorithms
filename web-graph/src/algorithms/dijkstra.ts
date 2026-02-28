@@ -36,6 +36,11 @@ export function dijkstra(
   const pq = new MinHeap<{ id: string; cost: number }>((a, b) => a.cost - b.cost);
   pq.push({ id: startId, cost: 0 });
 
+    // Snapshot the priority queue as display strings: "A(0)", "B(4)", etc.
+  const pqSnapshot = () => pq.toArray()
+    .sort((a, b) => a.cost - b.cost)
+    .map(({ id, cost }) => `${id}(${cost === Infinity ? '∞' : cost})`);
+
   frames.push({
     activeNodes:  [startId],
     visitedNodes: [],
@@ -44,6 +49,7 @@ export function dijkstra(
     log:      `Init: dist[${startId}] = 0; all others = ∞. Push ${startId} to priority queue.`,
     category:     'init',
     metadata:     distSnapshot(dist, graph),
+    queue: pqSnapshot(),
   });
 
   // ── Main loop ─────────────────────────────────────────────────────────────
@@ -62,6 +68,7 @@ export function dijkstra(
       log:      `Settle ${u} (dist = ${cost}). Pop from priority queue.`,
       category:     'visit',
       metadata:     distSnapshot(dist, graph),
+      queue: pqSnapshot(),
     });
 
     // Early exit: once endId is settled its distance is final
@@ -83,6 +90,7 @@ export function dijkstra(
           + `vs current ${oldDist === Infinity ? '∞' : oldDist}.`,
         category:     'explore',
         metadata:     distSnapshot(dist, graph),
+        queue: pqSnapshot(),
       });
 
       if (newDist < oldDist) {
@@ -99,6 +107,7 @@ export function dijkstra(
           log:      `Relax: dist[${neighbor}] ${oldDist === Infinity ? '∞' : oldDist} → ${newDist}. Push to queue.`,
           category:     'relax',
           metadata:     distSnapshot(dist, graph),
+          queue: pqSnapshot(),
         });
       } else {
         frames.push({
@@ -109,6 +118,7 @@ export function dijkstra(
           log:      `No improvement for ${neighbor} — skip.`,
           category:     'explore',
           metadata:     distSnapshot(dist, graph),
+          queue: pqSnapshot(),
         });
       }
     }
@@ -128,6 +138,7 @@ export function dijkstra(
       : `No path from ${startId} to ${endId}.`,
     category: 'done',
     metadata: distSnapshot(dist, graph),
+    queue: pqSnapshot(),
   });
 
   return {
@@ -180,6 +191,8 @@ class MinHeap<T> {
   constructor(comparator: (a: T, b: T) => number) {
     this.cmp = comparator;
   }
+
+  toArray(): T[] { return [...this.data]; }
 
   push(item: T): void {
     this.data.push(item);

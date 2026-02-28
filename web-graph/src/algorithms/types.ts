@@ -1,5 +1,5 @@
 export interface GraphEdge {
-  id: string;  // Already hashed by map and cytoscape needs proper stringw
+  id: string;  // Already hashed by map and cytoscape needs proper strings
   source: string;
   target: string;
   weight: number;
@@ -37,6 +37,7 @@ export interface StepFrame {
   category: StepCategory;
   /** Optional key-value data (e.g. distance table) */
   metadata?: Record<string, string | number>;
+  queue?: string[]; // To show the queue/stack state
 }
 
 export interface AlgorithmResult {

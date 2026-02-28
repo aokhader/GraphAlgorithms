@@ -27,6 +27,7 @@ export function bfs(graph: Graph, startId: string, endId: string): AlgorithmResu
     pathEdges:    [],
     log:      `Start BFS from ${startId}. Mark visited, enqueue.`,
     category:     'init',
+    queue: [...queue],
   });
 
   // BFS loop
@@ -41,6 +42,7 @@ export function bfs(graph: Graph, startId: string, endId: string): AlgorithmResu
       pathEdges:    [],
       log:      `Dequeue ${u} — exploring ${graph.adj.get(u)!.length} neighbor(s).`,
       category:     'visit',
+      queue: [...queue],
     });
 
     if (u === endId) {
@@ -62,6 +64,7 @@ export function bfs(graph: Graph, startId: string, endId: string): AlgorithmResu
           pathEdges:    [],
           log:      `Discover ${neighbor} via ${u} — enqueue.`,
           category:     'explore',
+          queue: [...queue],
         });
       } else {
         frames.push({
@@ -71,6 +74,7 @@ export function bfs(graph: Graph, startId: string, endId: string): AlgorithmResu
           pathEdges:    [],
           log:      `${neighbor} already visited — skip.`,
           category:     'explore',
+          queue: [...queue],
         });
       }
     }
@@ -88,6 +92,7 @@ export function bfs(graph: Graph, startId: string, endId: string): AlgorithmResu
       ? `Shortest path (${path.length - 1} hop${path.length !== 2 ? 's' : ''}): ${path.join(' → ')}`
       : `No path exists from ${startId} to ${endId}.`,
     category: 'done',
+    queue: [...queue],
   });
 
   return {

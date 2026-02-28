@@ -1,15 +1,15 @@
 import type { Graph, AlgorithmResult, StepFrame } from './types';
+import { reconstructPath } from './bfs';
 
 export function dfs(graph: Graph, startId: string, endId: string): AlgorithmResult {
   const frames: StepFrame[] = [];
 
-  // Malformed input
   if (!graph.adj.has(startId) || !graph.adj.has(endId)) {
     return {
       frames: [{
         activeNodes: [], visitedNodes: [], activeEdges: [], pathEdges: [],
         log: `Error: node "${!graph.adj.has(startId) ? startId : endId}" not found in graph.`,
-        category: 'done',
+        category: 'done', queue: [],
       }],
       answer: 'Invalid node',
     };
@@ -21,32 +21,24 @@ export function dfs(graph: Graph, startId: string, endId: string): AlgorithmResu
   const stack: string[] = [startId];
 
   frames.push({
-    activeNodes:  [startId],
-    visitedNodes: [startId],
-    activeEdges:  [],
-    pathEdges:    [],
-    log:      `Start BFS from ${startId}. Mark visited, enstack.`,
-    category:     'init',
+    activeNodes: [startId], visitedNodes: [startId], activeEdges: [], pathEdges: [],
+    log: `Start DFS from ${startId}. Mark visited, push to stack.`,
+    category: 'init',
+    queue: [...stack].reverse(), // show top of stack first
   });
 
-  // DFS loop
   let found = false;
   while (stack.length > 0) {
     const u = stack.pop()!;
 
     frames.push({
-      activeNodes:  [u],
-      visitedNodes: [...visited],
-      activeEdges:  [],
-      pathEdges:    [],
-      log:      `Pop ${u} — exploring ${graph.adj.get(u)!.length} neighbor(s).`,
-      category:     'visit',
+      activeNodes: [u], visitedNodes: [...visited], activeEdges: [], pathEdges: [],
+      log: `Pop ${u} — exploring ${graph.adj.get(u)!.length} neighbor(s).`,
+      category: 'visit',
+      queue: [...stack].reverse(),
     });
 
-    if (u === endId) {
-      found = true;
-      break;
-    }
+    if (u === endId) { found = true; break; }
 
     for (const { neighbor, edgeId } of graph.adj.get(u)!) {
       if (!visited.has(neighbor)) {
@@ -56,21 +48,19 @@ export function dfs(graph: Graph, startId: string, endId: string): AlgorithmResu
         stack.push(neighbor);
 
         frames.push({
-          activeNodes:  [u, neighbor],
-          visitedNodes: [...visited],
-          activeEdges:  [edgeId],
-          pathEdges:    [],
-          log:      `Discover ${neighbor} via ${u} — push to stack.`,
-          category:     'explore',
+          activeNodes: [u, neighbor], visitedNodes: [...visited],
+          activeEdges: [edgeId], pathEdges: [],
+          log: `Discover ${neighbor} via ${u} — push to stack.`,
+          category: 'explore',
+          queue: [...stack].reverse(),
         });
       } else {
         frames.push({
-          activeNodes:  [u, neighbor],
-          visitedNodes: [...visited],
-          activeEdges:  [edgeId],
-          pathEdges:    [],
-          log:      `${neighbor} already visited — skip.`,
-          category:     'explore',
+          activeNodes: [u, neighbor], visitedNodes: [...visited],
+          activeEdges: [edgeId], pathEdges: [],
+          log: `${neighbor} already visited — skip.`,
+          category: 'explore',
+          queue: [...stack].reverse(),
         });
       }
     }
@@ -80,14 +70,13 @@ export function dfs(graph: Graph, startId: string, endId: string): AlgorithmResu
   const pathFound = found || path[0] === startId;
 
   frames.push({
-    activeNodes:  pathFound ? path : [],
-    visitedNodes: [...visited],
-    activeEdges:  [],
-    pathEdges:    pathFound ? pathEdgeIds : [],
-    log:      pathFound
-      ? `Shortest path (${path.length - 1} hop${path.length !== 2 ? 's' : ''}): ${path.join(' → ')}`
+    activeNodes: pathFound ? path : [], visitedNodes: [...visited],
+    activeEdges: [], pathEdges: pathFound ? pathEdgeIds : [],
+    log: pathFound
+      ? `Path found (${path.length - 1} hop${path.length !== 2 ? 's' : ''}): ${path.join(' → ')}`
       : `No path exists from ${startId} to ${endId}.`,
     category: 'done',
+    queue: [],
   });
 
   return {
@@ -95,26 +84,4 @@ export function dfs(graph: Graph, startId: string, endId: string): AlgorithmResu
     path:   pathFound ? path : undefined,
     answer: pathFound ? path.length - 1 : 'No path',
   };
-}
-
-
-export function reconstructPath(
-  endId:    string,
-  startId:  string,
-  prev:     Map<string, string | null>,
-  prevEdge: Map<string, string | null>,
-): { path: string[]; pathEdgeIds: string[] } {
-  const path: string[]       = [];
-  const pathEdgeIds: string[] = [];
-
-  let cur: string | null = endId;
-  while (cur !== null && prev.has(cur)) {
-    path.unshift(cur);
-    const edgeId = prevEdge.get(cur);
-    if (edgeId) pathEdgeIds.unshift(edgeId);
-    cur = prev.get(cur) ?? null;
-  }
-
-  // path[0] === startId means we reached the start — a valid path
-  return { path, pathEdgeIds };
 }

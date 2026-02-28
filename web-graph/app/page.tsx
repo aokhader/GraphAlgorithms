@@ -1,65 +1,204 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useCallback } from 'react';
+
+import { bfs }                 from '../src/algorithms/bfs';
+import { dfs }                 from '../src/algorithms/dfs';
+import { dijkstra }            from '../src/algorithms/dijkstra';
+import { connectedComponents } from '../src/algorithms/connected-components';
+import { smallestThreshold }   from '../src/algorithms/union-find';
+import type { StepFrame }      from '../src/algorithms/types';
+
+import {
+  parseCSV,
+  graphToCytoscapeElements,
+  graphFromCytoscape,
+} from '../src/graph-setup/graphParser';
+
+import { AlgorithmPanel, type AlgorithmId } from '../src/ui/algorithmPanel';
+import { LogPanel }                          from '../src/ui/logPanel';
+import { ControlPanel }                      from '../src/ui/controlPanel';
+import { useAnimator }                       from '../src/ui/useAnimator';
+import { useCytoscape }                      from '../src/ui/useCytoscape';
+
+interface LogEntry { frame: StepFrame; index: number; }
+interface Result   { value: string; success: boolean; }
 
 export default function Home() {
+  const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
+  const [result, setResult]         = useState<Result | null>(null);
+  const [hasGraph, setHasGraph]     = useState(false);
+  const [currentAlgoId, setCurrentAlgoId] = useState<AlgorithmId>('bfs');
+
+  // ── Cytoscape ──────────────────────────────────────────────────────────────
+  const { containerRef, applyFrame, resetStyles, loadGraph, getCy } = useCytoscape();
+
+  // ── Animator ──────────────────────────────────────────────────────────────
+  const handleFrame = useCallback((frame: StepFrame, index: number) => {
+    applyFrame(frame, index);
+    if (index === -1) {
+      setLogEntries([]);
+      return;
+    }
+    setLogEntries((prev) => {
+      if (index < prev.length - 1) {
+        return prev.slice(0, index + 1);
+      }
+      return [...prev, { frame, index }];
+    });
+  }, [applyFrame]);
+
+  const animator = useAnimator(handleFrame);
+
+  function handleLoadCSV(csv: string, layout: string) {
+    try {
+      const graph    = parseCSV(csv);
+      const elements = graphToCytoscapeElements(graph);
+      loadGraph(elements, layout);
+      resetStyles();
+      animator.stop();
+      setLogEntries([]);
+      setResult(null);
+      setHasGraph(true);
+    } catch (e) {
+      console.error('[page] CSV parse error', e);
+    }
+  }
+
+  function handleClear() {
+    loadGraph([]);
+    animator.stop();
+    setLogEntries([]);
+    setResult(null);
+    setHasGraph(false);
+  }
+
+  // ── Run algorithm ──────────────────────────────────────────────────────────
+  function handleRun(algoId: AlgorithmId, startId: string, endId: string) {
+    console.log('handleRun called:', algoId, JSON.stringify(startId), JSON.stringify(endId));
+    setCurrentAlgoId(algoId);
+    const cy = getCy();
+    if (!cy) { console.warn('[page] Cytoscape not yet ready'); return; }
+
+    const graph = graphFromCytoscape(cy);
+    if (graph.nodes.length === 0) { alert('Load a graph first.'); return; }
+
+    const PATH_ALGOS = new Set(['bfs', 'dfs', 'dijkstra', 'threshold']);
+    if (PATH_ALGOS.has(algoId)) {
+      const ids = new Set(graph.nodes.map((n) => n.id));
+      if (!ids.has(startId)) { alert(`Node "${startId}" not found.`); return; }
+      if (!ids.has(endId))   { alert(`Node "${endId}" not found.`);   return; }
+    }
+
+    const algoFns = {
+      bfs:        () => bfs(graph, startId, endId),
+      dfs:        () => dfs(graph, startId, endId),
+      dijkstra:   () => dijkstra(graph, startId, endId),
+      components: () => connectedComponents(graph),
+      threshold:  () => smallestThreshold(graph, startId, endId),
+    };
+
+    const algoResult = algoFns[algoId]?.();
+    if (!algoResult) return;
+
+    const answered = algoResult.answer !== undefined
+      && algoResult.answer !== 'No path'
+      && algoResult.answer !== 'Invalid node';
+    setResult({ value: String(algoResult.answer ?? '—'), success: answered });
+
+    resetStyles();
+    setLogEntries([]);
+    animator.load(algoResult.frames);
+    animator.play();
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col h-screen bg-[#080a10] overflow-hidden">
+
+      <header className="flex items-center gap-4 px-5 py-3 border-b border-[#181b28] bg-[#080a10] shrink-0">
+        <div className="flex items-baseline gap-1.5">
+          <span className="font-mono text-[13px] font-bold tracking-[0.1em] text-[#4a7cf5]">GRAPH</span>
+          <span className="font-mono text-[13px] text-[#1e2130]">/</span>
+          <span className="font-mono text-[13px] font-bold tracking-[0.1em] text-[#2e3347]">VIZ</span>
+        </div>
+        <span className="font-mono text-[10px] text-[#2e3347] tracking-widest">
+          algorithm visualizer
+        </span>
+        <div className="ml-auto">
+          <span className="font-mono text-[9px] text-[#2e3347] tracking-widest uppercase">
+            drag nodes to reposition · scroll to zoom
+          </span>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        <AlgorithmPanel
+          onRun={handleRun}
+          onLoadCSV={handleLoadCSV}
+          onClear={handleClear}
+          disabled={animator.state === 'playing'}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        <main className="flex-1 relative overflow-hidden">
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `
+                linear-gradient(#0e0f18 1px, transparent 1px),
+                linear-gradient(90deg, #0e0f18 1px, transparent 1px)
+              `,
+              backgroundSize: '32px 32px',
+            }}
+          />
+          <div
+            ref={containerRef}
+            style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
+          />
+          {!hasGraph && <EmptyHint />}
+        </main>
+
+        <LogPanel
+          entries={logEntries}
+          currentIndex={animator.currentIndex}
+          frameCount={animator.frameCount}
+          result={result}
+          algoId={currentAlgoId}
+        />
+      </div>
+
+      <ControlPanel
+        state={animator.state}
+        progress={animator.progress}
+        speed={animator.speed}
+        frameCount={animator.frameCount}
+        onPlay={animator.play}
+        onPause={animator.pause}
+        onStop={animator.stop}
+        onStepFwd={animator.stepForward}
+        onStepBack={animator.stepBack}
+        onSpeedChange={animator.setSpeed}
+      />
+    </div>
+  );
+}
+
+function EmptyHint() {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="flex flex-col items-center gap-3 opacity-20">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#4a7cf5" strokeWidth="1.5">
+          <circle cx="8"  cy="24" r="5"/>
+          <circle cx="40" cy="8"  r="5"/>
+          <circle cx="40" cy="40" r="5"/>
+          <circle cx="24" cy="24" r="5"/>
+          <line x1="13" y1="24" x2="19" y2="24"/>
+          <line x1="29" y1="24" x2="35" y2="10"/>
+          <line x1="29" y1="24" x2="35" y2="38"/>
+        </svg>
+        <span className="font-mono text-[11px] text-[#4a7cf5] tracking-widest">
+          load a graph to begin
+        </span>
+      </div>
     </div>
   );
 }
